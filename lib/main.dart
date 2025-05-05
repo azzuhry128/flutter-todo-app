@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:todo_app_ui_flutter/account/login_page.dart';
+import 'package:todo_app_ui_flutter/account/register_page.dart';
 
 Future<void> configureEnvironment() async {
-  String envFile = '.env.physical';
+  String envFile = '.env.emulator';
   await dotenv.load(fileName: envFile);
   print("Loaded ENV file: $envFile");
 }
@@ -32,6 +33,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      initialRoute: '/',
+      routes: {
+        '/login': (context) => LoginPage(),
+        '/register': (context) => RegisterPage()
+      },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
