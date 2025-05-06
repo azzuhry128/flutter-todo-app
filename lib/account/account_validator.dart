@@ -6,6 +6,10 @@ class RegistrationValidator {
       return 'Username cannot be empty';
     }
 
+    if (username.length < 6) {
+      return 'Username is too short';
+    }
+
     return null;
   }
 
@@ -27,7 +31,7 @@ class RegistrationValidator {
     }
 
     if (phone_number.length < 10) {
-      return 'Password must be at least 10 characters long';
+      return 'Phone number must be at least 10 characters long';
     }
     return null;
   }

@@ -1,4 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 import 'package:todo_app_ui_flutter/account/account_service.dart';
 import 'package:todo_app_ui_flutter/account/account_validator.dart';
@@ -19,20 +22,18 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  Future<void> registerAccount() async {
+  final Logger registerLogger = Logger('REGISTER_PAGE');
+
+  Future<bool> registerAccount() async {
     final AccountRegistrationModel newAccount = AccountRegistrationModel(
         username: usernameController.text,
         email_address: emailController.text,
         phone_number: phoneController.text,
         password: passwordController.text);
 
-    final result = await AccountService.registerAccount(newAccount);
+    final bool result = await AccountService.registerAccount(newAccount);
 
-    if (result) {
-      ToastUtils.showToast('registration is successful');
-    } else {
-      ToastUtils.showToast('registration failed');
-    }
+    return result;
   }
 
   @override
@@ -41,17 +42,19 @@ class _RegisterPageState extends State<RegisterPage> {
       backgroundColor: Colors.grey[200],
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              formFields(),
-              SizedBox(height: 20),
-              registerButton(),
-              SizedBox(height: 15),
-              redirectButton(context),
-            ],
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                formFields(),
+                SizedBox(height: 20),
+                registerButton(),
+                SizedBox(height: 15),
+                redirectButton(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -70,69 +73,65 @@ class _RegisterPageState extends State<RegisterPage> {
           SizedBox(height: 10),
           Text('Create account to continue.', style: TextStyle(fontSize: 16)),
           SizedBox(height: 20),
-          TextFormField(
-            controller: usernameController,
-            decoration: InputDecoration(
-              labelText: 'Username',
-              border: OutlineInputBorder(),
+          Semantics(
+            label: "Username",
+            child: TextFormField(
+              key: const Key('Username'),
+              controller: usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                return RegistrationValidator.validateUsername(value);
+              },
             ),
-            validator: (value) {
-              final error = RegistrationValidator.validateUsername(value);
-              if (error != null) {
-                ToastUtils.showToast(error);
-              }
-
-              return error;
-            },
           ),
           SizedBox(height: 15),
-          TextFormField(
-            controller: emailController,
-            decoration: InputDecoration(
-              labelText: 'Email',
-              border: OutlineInputBorder(),
+          Semantics(
+            label: "Email",
+            child: TextFormField(
+              key: const Key('Email'),
+              controller: emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                return RegistrationValidator.validateEmail(value);
+              },
             ),
-            validator: (value) {
-              final error = RegistrationValidator.validateEmail(value);
-              if (error != null) {
-                ToastUtils.showToast(error);
-              }
-
-              return error;
-            },
           ),
           SizedBox(height: 15),
-          TextFormField(
-            controller: phoneController,
-            decoration: InputDecoration(
-              labelText: 'Phone',
-              border: OutlineInputBorder(),
+          Semantics(
+            label: "Phone",
+            child: TextFormField(
+              key: const Key('Phone'),
+              controller: phoneController,
+              decoration: InputDecoration(
+                labelText: 'Phone',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                return RegistrationValidator.validatePhone(value);
+              },
             ),
-            validator: (value) {
-              final error = RegistrationValidator.validatePhone(value);
-              if (error != null) {
-                ToastUtils.showToast(error);
-              }
-
-              return error;
-            },
           ),
           SizedBox(height: 15),
-          TextFormField(
-            controller: passwordController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              border: OutlineInputBorder(),
+          Semantics(
+            label: "Password",
+            child: TextFormField(
+              key: const Key('Password'),
+              controller: passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                return RegistrationValidator.validatePassword(value);
+              },
             ),
-            validator: (value) {
-              final error = RegistrationValidator.validatePassword(value);
-              if (error != null) {
-                ToastUtils.showToast(error);
-              }
-
-              return error;
-            },
           ),
         ],
       ),
@@ -145,9 +144,18 @@ class _RegisterPageState extends State<RegisterPage> {
         backgroundColor: Colors.orange,
         minimumSize: Size(double.infinity, 50),
       ),
-      onPressed: () {
+      onPressed: () async {
+        registerLogger.info('register button is pressed');
         if (_formKey.currentState!.validate()) {
           ToastUtils.showToast("Form is valid");
+        }
+
+        final bool result = await registerAccount();
+
+        if (result) {
+          registerLogger.info('registration successful');
+        } else {
+          registerLogger.info('registration failed');
         }
       },
       child: Text('Register', style: TextStyle(color: Colors.white)),

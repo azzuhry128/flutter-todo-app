@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 
 final Logger serviceLogger = Logger("RegisterService");
+final String? baseURL = dotenv.env['BASE_URL'];
 
 class AccountService {
   static Future<bool> registerAccount(AccountRegistrationModel account) async {
@@ -23,8 +24,6 @@ class AccountService {
       return false;
     }
   }
-
-  static final String? baseURL = dotenv.env['BASE_URL'];
 
   static Future<bool> loginAccount(AccountLoginModel account) async {
     try {
