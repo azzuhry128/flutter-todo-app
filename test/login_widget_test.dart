@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logging/logging.dart';
-import 'package:todo_app_ui_flutter/account/register_page.dart';
+import 'package:todo_app_ui_flutter/account/login_page.dart';
 
-final Logger registerWidgetTestLogger = Logger("REGISTRATION WIDGET TEST");
+final Logger loginWidgetTestLogger = Logger("LOGIN WIDGET TEST");
 
 void main() {
-  final log = Logger('registration widget test');
+  final log = Logger('Login Widget Test');
   setUpAll(() {
     Logger.root.onRecord.listen((LogRecord record) {
       print(
@@ -17,19 +17,17 @@ void main() {
   testWidgets('empty input test', (WidgetTester tester) async {
     log.info('starting empty input test');
     await tester.pumpWidget(MaterialApp(
-      home: RegisterPage(),
+      home: LoginPage(),
     ));
     // EMPTY FIELD TEST
     log.info('pressing the button');
-    final registerButton = find.widgetWithText(ElevatedButton, 'Register');
+    final loginButton = find.widgetWithText(ElevatedButton, 'Login');
 
-    await tester.tap(registerButton);
+    await tester.tap(loginButton);
     await tester.pumpAndSettle();
 
     log.info('checking all the list');
-    expect(find.text("Username cannot be empty"), findsOneWidget);
     expect(find.text("Email cannot be empty"), findsOneWidget);
-    expect(find.text("Phone cannot be empty"), findsOneWidget);
     expect(find.text("Password cannot be empty"), findsOneWidget);
     log.info('empty inputs test finished');
   });
@@ -37,38 +35,29 @@ void main() {
   testWidgets('invalid input test', (WidgetTester tester) async {
     log.info('starting invalid input test');
     await tester.pumpWidget(MaterialApp(
-      home: RegisterPage(),
+      home: LoginPage(),
     ));
 
-    final usernameText = 'ab';
     final emailText = 'invalid_email';
-    final phoneText = '123';
     final passwordText = 'short';
 
     log.info('filling out the form');
-    await tester.enterText(find.byKey(const Key('Username')), usernameText);
     await tester.enterText(find.byKey(const Key('Email')), emailText);
-    await tester.enterText(find.byKey(const Key('Phone')), phoneText);
     await tester.enterText(find.byKey(const Key('Password')), passwordText);
 
     log.info('information inserted into the form', {
-      'username': usernameText,
       'email': emailText,
-      'phone': phoneText,
       'password': passwordText,
     });
 
     log.info('pressing the button');
-    final registerButton = find.widgetWithText(ElevatedButton, 'Register');
+    final loginButton = find.widgetWithText(ElevatedButton, 'Login');
 
-    await tester.tap(registerButton);
+    await tester.tap(loginButton);
     await tester.pumpAndSettle();
 
     log.info('checking all the list');
-    expect(find.text("Username is too short"), findsOneWidget);
     expect(find.text("Enter a valid email address"), findsOneWidget);
-    expect(find.text("Phone number must be at least 10 characters long"),
-        findsOneWidget);
     expect(find.text("Password must be at least 6 characters long"),
         findsOneWidget);
     log.info('invalid input test finished');

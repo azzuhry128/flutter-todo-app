@@ -5,7 +5,6 @@ import 'package:logging/logging.dart';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 import 'package:todo_app_ui_flutter/account/account_service.dart';
 import 'package:todo_app_ui_flutter/account/account_validator.dart';
-import 'package:todo_app_ui_flutter/utils/toast_utils.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -147,15 +146,15 @@ class _RegisterPageState extends State<RegisterPage> {
       onPressed: () async {
         registerLogger.info('register button is pressed');
         if (_formKey.currentState!.validate()) {
-          ToastUtils.showToast("Form is valid");
-        }
+          registerLogger.info('form is valid');
 
-        final bool result = await registerAccount();
+          final bool result = await registerAccount();
 
-        if (result) {
-          registerLogger.info('registration successful');
-        } else {
-          registerLogger.info('registration failed');
+          if (result) {
+            registerLogger.info('registration successful');
+          } else {
+            registerLogger.info('registration failed');
+          }
         }
       },
       child: Text('Register', style: TextStyle(color: Colors.white)),

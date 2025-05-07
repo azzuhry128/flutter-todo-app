@@ -7,7 +7,7 @@ import 'package:todo_app_ui_flutter/account/login_page.dart';
 import 'package:todo_app_ui_flutter/account/register_page.dart';
 
 Future<void> configureEnvironment() async {
-  String envFile = '.env.emulator';
+  String envFile = '.env';
   await dotenv.load(fileName: envFile);
   print("Loaded ENV file: $envFile");
 }
