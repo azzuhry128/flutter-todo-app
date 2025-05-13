@@ -1,7 +1,13 @@
+// ignore_for_file: library_private_types_in_public_api
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 import 'package:todo_app_ui_flutter/account/account_service.dart';
+import 'package:todo_app_ui_flutter/account/account_store.dart';
 import 'package:todo_app_ui_flutter/account/account_validator.dart';
 
 class LoginPage extends StatefulWidget {
@@ -24,6 +30,11 @@ class _LoginPageState extends State<LoginPage> {
         email_address: emailController.text, password: passwordController.text);
 
     final bool result = await AccountService.loginAccount(account);
+
+    Provider.of<AccountStore>(context, listen: false)
+        .setAccountId(jsonDecode(result.toString())['account_id']);
+    loginLogger.info(
+        'Account stored in provider: ${jsonDecode(result.toString())['account_id']}');
 
     return result;
   }
@@ -106,6 +117,14 @@ class _LoginPageState extends State<LoginPage> {
         loginLogger.info('login button is pressed');
         if (_loginFormKey.currentState!.validate()) {
           loginLogger.info('form is valid');
+
+          final bool result = await loginAccount();
+
+          if (result) {
+            loginLogger.info('login successful');
+          } else {
+            loginLogger.info('login failed');
+          }
         }
       },
       child: Text('Login', style: TextStyle(color: Colors.white)),

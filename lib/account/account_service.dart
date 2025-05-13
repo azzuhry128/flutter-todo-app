@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 
-final Logger serviceLogger = Logger("RegisterService");
+final Logger serviceLogger = Logger("AccountService");
 final String baseURL = 'http://localhost:3000';
 
 class AccountService {
@@ -33,7 +33,7 @@ class AccountService {
   static Future<bool> loginAccount(AccountLoginModel account) async {
     serviceLogger.info('baseURL: $baseURL');
     try {
-      final response = await http.post(Uri.parse('$baseURL/api/account/login'),
+      final response = await http.post(Uri.parse('$baseURL/api/accounts/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(account.toJson()));
 

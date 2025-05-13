@@ -1,12 +1,13 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app_ui_flutter/account/account_store.dart';
 import 'package:todo_app_ui_flutter/account/login_page.dart';
 import 'package:todo_app_ui_flutter/account/register_page.dart';
-import 'package:http/http.dart' as http;
+
+import 'account_test_service.dart';
 
 final Logger accountIntegrationTestLogger = Logger("REGISTRATION WIDGET TEST");
 final String baseURL = 'http://localhost:3000';
@@ -25,18 +26,8 @@ void main() {
 
   group('Account Registration Integration', () {
     setUpAll(() async {
-      log.info('deleting previous account');
-      try {
-        final response = await http.delete(
-          Uri.parse('$baseURL/api/accounts/delete'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'username': 'test123'}),
-        );
-
-        log.info(response.body);
-      } catch (e) {
-        log.severe('Error: $e');
-      }
+      log.info('setting up registration test');
+      await AccountTestService.deleteAccount();
     });
     testWidgets('Account Registration test', (WidgetTester tester) async {
       log.info('starting registration test');
@@ -44,10 +35,10 @@ void main() {
         home: RegisterPage(),
       ));
 
-      final usernameText = 'test123';
-      final emailText = 'test@gmail.com';
-      final phoneText = '529440177013';
-      final passwordText = '529440177013';
+      final usernameText = 'username123';
+      final emailText = 'test123@gmail.com';
+      final phoneText = 'test123456789';
+      final passwordText = 'password123';
 
       log.info('filling out the form');
       await tester.enterText(find.byKey(const Key('Username')), usernameText);
@@ -69,12 +60,15 @@ void main() {
   group('Account Login Integration', () {
     testWidgets('Account Login test', (WidgetTester tester) async {
       log.info('starting Login test');
-      await tester.pumpWidget(MaterialApp(
-        home: LoginPage(),
+      await tester.pumpWidget(ChangeNotifierProvider<AccountStore>(
+        create: (context) => AccountStore(),
+        child: MaterialApp(
+          home: LoginPage(),
+        ),
       ));
 
-      final emailText = 'test@gmail.com';
-      final passwordText = '529440177013';
+      final emailText = 'test123@gmail.com';
+      final passwordText = 'password123';
 
       log.info('filling out the form');
       await tester.enterText(find.byKey(const Key('Email')), emailText);

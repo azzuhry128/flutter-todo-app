@@ -3,8 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app_ui_flutter/account/account_store.dart';
 import 'package:todo_app_ui_flutter/account/login_page.dart';
 import 'package:todo_app_ui_flutter/account/register_page.dart';
+import 'package:todo_app_ui_flutter/todo/todo_page.dart';
 
 Future<void> configureEnvironment() async {
   String envFile = '.env';
@@ -23,7 +26,14 @@ void loggingConfig() {
 void main() async {
   await configureEnvironment();
   loggingConfig();
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (context) => AccountStore(),
+      ),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -33,10 +43,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      initialRoute: '/',
+      initialRoute: '/main',
       routes: {
         '/login': (context) => LoginPage(),
-        '/register': (context) => RegisterPage()
+        '/register': (context) => RegisterPage(),
+        '/main': (context) => TodoPage(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
