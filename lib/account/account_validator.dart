@@ -3,11 +3,11 @@
 class RegistrationValidator {
   static String? validateUsername(String? username) {
     if (username == null || username.isEmpty) {
-      return 'Username cannot be empty';
+      return 'username cannot be empty';
     }
 
     if (username.length < 6) {
-      return 'Username is too short';
+      return 'username is too short';
     }
 
     return null;
@@ -15,11 +15,11 @@ class RegistrationValidator {
 
   static String? validateEmail(String? email_address) {
     if (email_address == null || email_address.isEmpty) {
-      return 'Email cannot be empty';
+      return 'email cannot be empty';
     }
 
     if (!email_address.contains('@')) {
-      return 'Enter a valid email address';
+      return 'email must be valid';
     }
 
     return null;
@@ -27,22 +27,22 @@ class RegistrationValidator {
 
   static String? validatePhone(String? phone_number) {
     if (phone_number == null || phone_number.isEmpty) {
-      return 'Phone cannot be empty';
+      return 'phone cannot be empty';
     }
 
     if (phone_number.length < 10) {
-      return 'Phone number must be at least 10 characters long';
+      return 'Phonenumber is too short';
     }
     return null;
   }
 
   static String? validatePassword(String? password) {
     if (password == null || password.isEmpty) {
-      return 'Password cannot be empty';
+      return 'password cannot be empty';
     }
 
     if (password.length < 6) {
-      return 'Password must be at least 6 characters long';
+      return 'password is too short';
     }
     return null;
   }
@@ -51,11 +51,11 @@ class RegistrationValidator {
 class LoginValidator {
   static String? validateEmail(String? email_address) {
     if (email_address == null || email_address.isEmpty) {
-      return 'Email cannot be empty';
+      return 'email cannot be empty';
     }
 
     if (!email_address.contains('@')) {
-      return 'Enter a valid email address';
+      return 'email must be valid';
     }
 
     return null;
@@ -63,11 +63,11 @@ class LoginValidator {
 
   static String? validatePassword(String? password) {
     if (password == null || password.isEmpty) {
-      return 'Password cannot be empty';
+      return 'password cannot be empty';
     }
 
     if (password.length < 6) {
-      return 'Password must be at least 6 characters long';
+      return 'password is too short';
     }
     return null;
   }

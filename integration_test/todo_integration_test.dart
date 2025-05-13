@@ -5,8 +5,7 @@ import 'package:todo_app_ui_flutter/account/account_model.dart';
 import 'package:todo_app_ui_flutter/todo/todo_model.dart';
 import 'package:todo_app_ui_flutter/todo/todo_page.dart';
 
-import '../account_tests/account_test_service.dart';
-import 'todo_test_service.dart';
+import 'integration_service.dart';
 
 final Logger todoWidgetTestLogger = Logger("TODO WIDGET TEST");
 
@@ -45,13 +44,14 @@ void main() {
     setUpAll(() async {
       log.info('setting up GET TEST GROUP');
       log.info('deleting existing account');
-      await AccountTestService.deleteAccount();
+      await IntegrationService.deleteAccount();
       log.info('creating new account');
-      final account_id = await AccountTestService.registerAccount(newTestAccount);
+      final account_id =
+          await IntegrationService.registerAccount(newTestAccount);
       log.info('creating todos');
-      await TestTodoService.createTodo(newTestTodo, account_id);
-      await TestTodoService.createTodo(newTestTodo_2, account_id);
-      await TestTodoService.createTodo(newTestTodo_3, account_id);
+      await IntegrationService.createTodo(newTestTodo, account_id);
+      await IntegrationService.createTodo(newTestTodo_2, account_id);
+      await IntegrationService.createTodo(newTestTodo_3, account_id);
       log.info('GET TEST GROUP setup complete');
     });
     testWidgets('GET TEST', (WidgetTester tester) async {

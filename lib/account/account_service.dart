@@ -30,7 +30,7 @@ class AccountService {
     }
   }
 
-  static Future<bool> loginAccount(AccountLoginModel account) async {
+  static Future loginAccount(AccountLoginModel account) async {
     serviceLogger.info('baseURL: $baseURL');
     try {
       final response = await http.post(Uri.parse('$baseURL/api/accounts/login'),
@@ -39,7 +39,7 @@ class AccountService {
 
       serviceLogger.info(
           "Status Code: ${response.statusCode} Response: ${response.body}");
-      return response.statusCode == 200;
+      return response.body;
     } catch (e) {
       serviceLogger.severe("Error: $e");
       return false;

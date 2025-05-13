@@ -5,10 +5,67 @@ import 'dart:convert';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 import 'package:todo_app_ui_flutter/todo/todo_model.dart';
 
-final Logger serviceLogger = Logger("RegisterService");
+final Logger serviceLogger = Logger("IntegrationService");
 final String baseURL = 'http://localhost:3000';
 
-class TestTodoService {
+class IntegrationService {
+  static Future<bool> registerAccount(AccountRegistrationModel account) async {
+    serviceLogger.info('baseURL: $baseURL');
+    serviceLogger.info('body: ${jsonEncode(account.toJson())}');
+    try {
+      final response = await http.post(
+          Uri.parse('$baseURL/api/accounts/register'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(account.toJson()));
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+
+      serviceLogger.info(
+          "Status Code: ${response.statusCode} Response: ${response.body}");
+      return false;
+    } catch (e) {
+      serviceLogger.severe("Error: $e");
+      return false;
+    }
+  }
+
+  static Future loginAccount(AccountLoginModel account) async {
+    serviceLogger.info('baseURL: $baseURL');
+    try {
+      final response = await http.post(Uri.parse('$baseURL/api/accounts/login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(account.toJson()));
+
+      serviceLogger.info(
+          "Status Code: ${response.statusCode} Response: ${response.body}");
+      return response.body;
+    } catch (e) {
+      serviceLogger.severe("Error: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> deleteAccount() async {
+    serviceLogger.info('baseURL: $baseURL');
+    final username = 'username123'; // Replace with the actual username
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseURL/api/accounts/delete/$username'), // Corrected URL
+        headers: {'Content-Type': 'application/json'}, // Added content type
+      );
+
+      serviceLogger.info(
+          "Status Code: ${response.statusCode} Response: ${response.body}");
+      return response.statusCode ==
+          200; // Or 204 No Content, depending on your API
+    } catch (e) {
+      serviceLogger.severe("Error: $e");
+      return false;
+    }
+  }
+
   static Future<bool> getTodo(AccountLoginModel account, account_id) async {
     serviceLogger.info('baseURL: $baseURL');
     try {
@@ -46,7 +103,7 @@ class TestTodoService {
     }
   }
 
-  static Future<bool> updateTodo(CreateTodoModel todo, todo_id) async {
+  static Future<bool> updateTodo(UpdateTodoModel todo, todo_id) async {
     serviceLogger.info('baseURL: $baseURL');
     try {
       final response = await http.delete(

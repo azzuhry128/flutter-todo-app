@@ -4,10 +4,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-import 'package:provider/provider.dart';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 import 'package:todo_app_ui_flutter/account/account_service.dart';
-import 'package:todo_app_ui_flutter/account/account_store.dart';
 import 'package:todo_app_ui_flutter/account/account_validator.dart';
 
 class LoginPage extends StatefulWidget {
@@ -25,18 +23,14 @@ class _LoginPageState extends State<LoginPage> {
 
   final Logger loginLogger = Logger('LOGIN_PAGE');
 
-  Future<bool> loginAccount() async {
+  Future loginAccount() async {
     final AccountLoginModel account = AccountLoginModel(
         email_address: emailController.text, password: passwordController.text);
 
-    final bool result = await AccountService.loginAccount(account);
-
-    Provider.of<AccountStore>(context, listen: false)
-        .setAccountId(jsonDecode(result.toString())['account_id']);
-    loginLogger.info(
-        'Account stored in provider: ${jsonDecode(result.toString())['account_id']}');
-
-    return result;
+    final response = await AccountService.loginAccount(account);
+    final decodedResponse = jsonDecode(response);
+    loginLogger.info('account_id: ${decodedResponse['data']['account_id']}');
+    return response;
   }
 
   @override
@@ -109,6 +103,7 @@ class _LoginPageState extends State<LoginPage> {
 
   ElevatedButton loginButton() {
     return ElevatedButton(
+      key: const Key('LoginButton'),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.orange,
         minimumSize: Size(double.infinity, 50),
@@ -118,13 +113,7 @@ class _LoginPageState extends State<LoginPage> {
         if (_loginFormKey.currentState!.validate()) {
           loginLogger.info('form is valid');
 
-          final bool result = await loginAccount();
-
-          if (result) {
-            loginLogger.info('login successful');
-          } else {
-            loginLogger.info('login failed');
-          }
+          await loginAccount();
         }
       },
       child: Text('Login', style: TextStyle(color: Colors.white)),

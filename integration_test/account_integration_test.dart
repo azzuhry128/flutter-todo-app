@@ -7,9 +7,9 @@ import 'package:todo_app_ui_flutter/account/account_store.dart';
 import 'package:todo_app_ui_flutter/account/login_page.dart';
 import 'package:todo_app_ui_flutter/account/register_page.dart';
 
-import 'account_test_service.dart';
+import 'integration_service.dart';
 
-final Logger accountIntegrationTestLogger = Logger("REGISTRATION WIDGET TEST");
+final Logger accountIntegrationTestLogger = Logger("ACCOUNT INTEGRATION TEST");
 final String baseURL = 'http://localhost:3000';
 
 void main() {
@@ -27,7 +27,7 @@ void main() {
   group('Account Registration Integration', () {
     setUpAll(() async {
       log.info('setting up registration test');
-      await AccountTestService.deleteAccount();
+      await IntegrationService.deleteAccount();
     });
     testWidgets('Account Registration test', (WidgetTester tester) async {
       log.info('starting registration test');

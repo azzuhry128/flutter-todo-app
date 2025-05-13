@@ -139,6 +139,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   ElevatedButton registerButton() {
     return ElevatedButton(
+      key: const Key('RegisterButton'),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.orange,
         minimumSize: Size(double.infinity, 50),
