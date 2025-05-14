@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'dart:convert';
@@ -5,7 +6,7 @@ import 'dart:convert';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 
 final Logger serviceLogger = Logger("AccountService");
-final String baseURL = 'http://localhost:3000';
+final String baseURL = dotenv.env['EMULATOR'] ?? '';
 
 class AccountService {
   static Future<bool> registerAccount(AccountRegistrationModel account) async {

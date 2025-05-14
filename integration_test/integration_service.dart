@@ -6,7 +6,7 @@ import 'package:todo_app_ui_flutter/account/account_model.dart';
 import 'package:todo_app_ui_flutter/todo/todo_model.dart';
 
 final Logger serviceLogger = Logger("IntegrationService");
-final String baseURL = 'http://localhost:3000';
+final String baseURL = 'http://10.0.2.2:3000';
 
 class IntegrationService {
   static Future<bool> registerAccount(AccountRegistrationModel account) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:logging/logging.dart';
@@ -10,9 +11,10 @@ import 'package:todo_app_ui_flutter/account/register_page.dart';
 import 'integration_service.dart';
 
 final Logger accountIntegrationTestLogger = Logger("ACCOUNT INTEGRATION TEST");
-final String baseURL = 'http://localhost:3000';
+final String baseURL = 'http://10.0.2.2:3000';
 
-void main() {
+void main() async {
+  dotenv.load(fileName: ".env.test");
   final log = Logger('account integration test');
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -24,6 +26,12 @@ void main() {
     Logger.root.level = Level.ALL;
   });
 
+  await _executeRegistrationTest(log);
+  await _executeLoginTest(log);
+  log.info('completed all tests');
+}
+
+Future<void> _executeRegistrationTest(log) async {
   group('Account Registration Integration', () {
     setUpAll(() async {
       log.info('setting up registration test');
@@ -56,7 +64,9 @@ void main() {
       await tester.pumpAndSettle();
     });
   });
+}
 
+Future<void> _executeLoginTest(log) async {
   group('Account Login Integration', () {
     testWidgets('Account Login test', (WidgetTester tester) async {
       log.info('starting Login test');

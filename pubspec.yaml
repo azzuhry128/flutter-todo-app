@@ -39,6 +39,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   fluttertoast: ^8.2.12
   provider: ^6.1.5
+  storybook_flutter: ^0.14.1
 
 dev_dependencies:
   flutter_test:
@@ -59,8 +60,8 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - .env.emulator
-    - .env.physical
+    - .env
+    - .env.test
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

@@ -13,6 +13,23 @@ Future<void> configureEnvironment() async {
   String envFile = '.env';
   await dotenv.load(fileName: envFile);
   print("Loaded ENV file: $envFile");
+
+  print("Loaded Environment Variables:");
+  dotenv.env.forEach((key, value) {
+    print("$key: $value");
+  });
+
+  String? baseURL;
+
+  if (dotenv.env['TEST_ENV'] == 'ANDROID') {
+    baseURL = dotenv.env['ANDROID'] ?? 'https://default.android.url';
+  } else if (dotenv.env['TEST_ENV'] == 'EMULATOR') {
+    baseURL = dotenv.env['EMULATOR'] ?? 'http://10.0.2.2:3000';
+  } else if (dotenv.env['TEST_ENV'] == 'PRODUCTION') {
+    baseURL = dotenv.env['PRODUCTION'] ?? 'https://default.production.url';
+  }
+
+  print("Base URL: $baseURL");
 }
 
 void loggingConfig() {
@@ -43,7 +60,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      initialRoute: '/main',
+      initialRoute: '/login',
       routes: {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
