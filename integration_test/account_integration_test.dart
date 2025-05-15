@@ -28,6 +28,7 @@ void main() async {
 
   await _executeRegistrationTest(log);
   await _executeLoginTest(log);
+
   log.info('completed all tests');
 }
 

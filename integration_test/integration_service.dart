@@ -9,7 +9,7 @@ final Logger serviceLogger = Logger("IntegrationService");
 final String baseURL = 'http://10.0.2.2:3000';
 
 class IntegrationService {
-  static Future<bool> registerAccount(AccountRegistrationModel account) async {
+  static Future registerAccount(AccountRegistrationModel account) async {
     serviceLogger.info('baseURL: $baseURL');
     serviceLogger.info('body: ${jsonEncode(account.toJson())}');
     try {
@@ -47,7 +47,7 @@ class IntegrationService {
     }
   }
 
-  static Future<bool> deleteAccount() async {
+  static Future deleteAccount() async {
     serviceLogger.info('baseURL: $baseURL');
     final username = 'username123'; // Replace with the actual username
     try {
@@ -66,7 +66,7 @@ class IntegrationService {
     }
   }
 
-  static Future<bool> getTodo(AccountLoginModel account, account_id) async {
+  static Future getTodo(AccountLoginModel account, account_id) async {
     serviceLogger.info('baseURL: $baseURL');
     try {
       final response = await http.post(
@@ -76,14 +76,14 @@ class IntegrationService {
 
       serviceLogger.info(
           "Status Code: ${response.statusCode} Response: ${response.body}");
-      return response.statusCode == 200;
+      return response;
     } catch (e) {
       serviceLogger.severe("Error: $e");
       return false;
     }
   }
 
-  static Future<bool> createTodo(CreateTodoModel todo, account_id) async {
+  static Future createTodo(CreateTodoModel todo, account_id) async {
     serviceLogger.info('baseURL: $baseURL');
     try {
       final response = await http.patch(
@@ -96,14 +96,14 @@ class IntegrationService {
       serviceLogger.info(
           "Status Code: ${response.statusCode} Response: ${response.body}");
       //  Consider 200 OK or 204 No Content for a successful update
-      return response.statusCode == 200 || response.statusCode == 204;
+      return response;
     } catch (e) {
       serviceLogger.severe("Error: $e");
       return false;
     }
   }
 
-  static Future<bool> updateTodo(UpdateTodoModel todo, todo_id) async {
+  static Future updateTodo(UpdateTodoModel todo, todo_id) async {
     serviceLogger.info('baseURL: $baseURL');
     try {
       final response = await http.delete(
@@ -114,15 +114,14 @@ class IntegrationService {
 
       serviceLogger.info(
           "Status Code: ${response.statusCode} Response: ${response.body}");
-      return response.statusCode ==
-          200; // Or 204 No Content, depending on your API
+      return response;
     } catch (e) {
       serviceLogger.severe("Error: $e");
       return false;
     }
   }
 
-  static Future<bool> deleteTodo(todo_id) async {
+  static Future deleteTodo(todo_id) async {
     serviceLogger.info('baseURL: $baseURL');
     try {
       final response = await http.delete(
@@ -132,8 +131,7 @@ class IntegrationService {
 
       serviceLogger.info(
           "Status Code: ${response.statusCode} Response: ${response.body}");
-      return response.statusCode ==
-          200; // Or 204 No Content, depending on your API
+      return response;
     } catch (e) {
       serviceLogger.severe("Error: $e");
       return false;

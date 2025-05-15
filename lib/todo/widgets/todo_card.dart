@@ -13,70 +13,62 @@ class TodoCard extends StatelessWidget {
     required this.onToggleDone,
   });
 
+  get index => null;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white, // Background color of the card
-        borderRadius: BorderRadius.circular(12.0), // Rounded corners
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2), // Shadow color
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 2), // Shadow offset
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Checkbox to mark todo as done
-          Checkbox(
-            value: todoItem.status,
-            onChanged: (value) => onToggleDone(),
-            checkColor: Colors.white,
-            activeColor: const Color(0xFF4294FF),
-          ),
-          const SizedBox(width: 8.0),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  todoItem.title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Inter',
-                    color: todoItem.status ? Colors.grey : Colors.black,
-                    decoration: todoItem.status
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none,
-                  ),
-                ),
-                const SizedBox(height: 4.0),
-                Text(
-                  todoItem.description,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.red,
-                    fontFamily: 'Sans',
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.fade, // Use fade instead of ellipsis
-                )
-              ],
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16), // Add padding to the ListTitle
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              flex: 1,
+              child: Checkbox(
+                value: todoItem.status,
+                onChanged: (value) {
+                  // Call the _toggleDone method
+                  _toggleDone(index);
+                },
+              ),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: onDelete,
-            color: Colors.grey,
-          ),
-        ],
+            Flexible(
+              flex: 3,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      todoItem.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(todoItem.description),
+                  ],
+                ),
+              ),
+            ),
+            Flexible(
+              flex: 1,
+              child: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  // Call the _deleteTodoItem method
+                  _deleteTodoItem(index);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  void _deleteTodoItem(index) {}
+
+  void _toggleDone(index) {}
 }

@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 import 'package:todo_app_ui_flutter/account/account_service.dart';
 import 'package:todo_app_ui_flutter/account/account_validator.dart';
+import 'package:todo_app_ui_flutter/utils/gradient_backgroud.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -38,25 +39,39 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                formFields(),
-                SizedBox(height: 20),
-                registerButton(),
-                SizedBox(height: 15),
-                redirectButton(context),
-              ],
+      body: Stack(children: [
+        GradientBackground(),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.75,
+            decoration: BoxDecoration(
+              // Added BoxDecoration
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                // Apply borderRadius here
+                topLeft: Radius.circular(36.0), // Top-left radius
+                topRight: Radius.circular(36.0), // Top-right radius
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  formFields(),
+                  SizedBox(height: 24),
+                  registerButton(),
+                  SizedBox(height: 12),
+                  redirectButton(context),
+                ],
+              ),
             ),
           ),
         ),
-      ),
+      ]),
     );
   }
 
@@ -65,12 +80,25 @@ class _RegisterPageState extends State<RegisterPage> {
       key: _formKey,
       child: Column(
         children: <Widget>[
-          Text(
-            'Registration',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              'create your account'.toUpperCase(),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.indigo, // Apply the indigo shade
+              ),
+            ),
           ),
-          SizedBox(height: 10),
-          Text('Create account to continue.', style: TextStyle(fontSize: 16)),
+          SizedBox(height: 4),
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              'fill the forms below to create your account',
+              style: TextStyle(fontSize: 12),
+            ),
+          ),
           SizedBox(height: 20),
           Semantics(
             label: "Username",
@@ -79,7 +107,12 @@ class _RegisterPageState extends State<RegisterPage> {
               controller: usernameController,
               decoration: InputDecoration(
                 labelText: 'Username',
-                border: OutlineInputBorder(),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.indigo),
+                    borderRadius: BorderRadius.circular(16)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.indigo),
+                    borderRadius: BorderRadius.circular(16)),
               ),
               validator: (value) {
                 return RegistrationValidator.validateUsername(value);
@@ -94,7 +127,12 @@ class _RegisterPageState extends State<RegisterPage> {
               controller: emailController,
               decoration: InputDecoration(
                 labelText: 'Email',
-                border: OutlineInputBorder(),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.indigo),
+                    borderRadius: BorderRadius.circular(16)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.indigo),
+                    borderRadius: BorderRadius.circular(16)),
               ),
               validator: (value) {
                 return RegistrationValidator.validateEmail(value);
@@ -109,7 +147,12 @@ class _RegisterPageState extends State<RegisterPage> {
               controller: phoneController,
               decoration: InputDecoration(
                 labelText: 'Phone',
-                border: OutlineInputBorder(),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.indigo),
+                    borderRadius: BorderRadius.circular(16)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.indigo),
+                    borderRadius: BorderRadius.circular(16)),
               ),
               validator: (value) {
                 return RegistrationValidator.validatePhone(value);
@@ -125,7 +168,12 @@ class _RegisterPageState extends State<RegisterPage> {
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Password',
-                border: OutlineInputBorder(),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.indigo),
+                    borderRadius: BorderRadius.circular(16)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.indigo),
+                    borderRadius: BorderRadius.circular(16)),
               ),
               validator: (value) {
                 return RegistrationValidator.validatePassword(value);
@@ -141,7 +189,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return ElevatedButton(
       key: const Key('RegisterButton'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.orange,
+        backgroundColor: Colors.indigo,
         minimumSize: Size(double.infinity, 50),
       ),
       onPressed: () async {
@@ -167,8 +215,15 @@ class _RegisterPageState extends State<RegisterPage> {
       onPressed: () {
         Navigator.of(context).pushReplacementNamed('/login');
       },
+      style: ButtonStyle(
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
+        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+      ),
       child: Text("already have an account? Sign in",
-          style: TextStyle(color: Colors.orange)),
+          style: TextStyle(
+              color: Colors.indigo.shade900,
+              fontSize: 14,
+              fontWeight: FontWeight.bold)),
     );
   }
 }

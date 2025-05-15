@@ -30,32 +30,76 @@ final CreateTodoModel newTestTodo_3 = CreateTodoModel(
   description: 'This is a test todo 3',
 );
 
-void main() {
+void main() async {
   final log = Logger('Todo Widget Test');
-  setUpAll(() {
+  var account_id = '';
+  var todo_1 = [];
+  var todo_2 = [];
+  var todo_3 = [];
+  setUpAll(() async {
     Logger.root.onRecord.listen((LogRecord record) {
       print(
           '${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
     });
     Logger.root.level = Level.ALL;
+
+    await IntegrationService.deleteAccount();
+    account_id = await IntegrationService.registerAccount(newTestAccount);
+    todo_1 = await IntegrationService.createTodo(newTestTodo, account_id);
+    todo_2 = await IntegrationService.createTodo(newTestTodo_2, account_id);
+    todo_3 = await IntegrationService.createTodo(newTestTodo_3, account_id);
+
+    log.info('test account id: $account_id');
+    log.info('test todo_1: $todo_1');
+    log.info('test todo_2: $todo_2');
+    log.info('test todo_3: $todo_3');
   });
 
+  await _executeGetTodo(log);
+  await _executePostTodo(log);
+  await _executePatchTodo(log);
+  await _executeDeleteTodo(log);
+
+  log.info('completed all tests');
+}
+
+Future<void> _executeGetTodo(log) async {
   group('GET TEST GROUP', () {
-    setUpAll(() async {
-      log.info('setting up GET TEST GROUP');
-      log.info('deleting existing account');
-      await IntegrationService.deleteAccount();
-      log.info('creating new account');
-      final account_id =
-          await IntegrationService.registerAccount(newTestAccount);
-      log.info('creating todos');
-      await IntegrationService.createTodo(newTestTodo, account_id);
-      await IntegrationService.createTodo(newTestTodo_2, account_id);
-      await IntegrationService.createTodo(newTestTodo_3, account_id);
-      log.info('GET TEST GROUP setup complete');
-    });
     testWidgets('GET TEST', (WidgetTester tester) async {
       log.info('starting get test');
+      await tester.pumpWidget(MaterialApp(
+        home: TodoPage(),
+      ));
+    });
+  });
+}
+
+Future<void> _executePostTodo(log) async {
+  group('POST TEST GROUP', () {
+    testWidgets('POST TEST', (WidgetTester tester) async {
+      log.info('starting post test');
+      await tester.pumpWidget(MaterialApp(
+        home: TodoPage(),
+      ));
+    });
+  });
+}
+
+Future<void> _executePatchTodo(log) async {
+  group('PATCH TEST GROUP', () {
+    testWidgets('PATCH TEST', (WidgetTester tester) async {
+      log.info('starting patch test');
+      await tester.pumpWidget(MaterialApp(
+        home: TodoPage(),
+      ));
+    });
+  });
+}
+
+Future<void> _executeDeleteTodo(log) async {
+  group('DELETE TEST GROUP', () {
+    testWidgets('DELETE TEST', (WidgetTester tester) async {
+      log.info('starting delete test');
       await tester.pumpWidget(MaterialApp(
         home: TodoPage(),
       ));
