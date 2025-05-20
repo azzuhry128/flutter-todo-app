@@ -7,6 +7,7 @@ import 'package:logging/logging.dart';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
 import 'package:todo_app_ui_flutter/account/account_service.dart';
 import 'package:todo_app_ui_flutter/account/account_validator.dart';
+import 'package:todo_app_ui_flutter/store/account_store.dart';
 import 'package:todo_app_ui_flutter/utils/gradient_backgroud.dart';
 
 class LoginPage extends StatefulWidget {
@@ -161,7 +162,10 @@ class _LoginPageState extends State<LoginPage> {
         if (_loginFormKey.currentState!.validate()) {
           loginLogger.info('form is valid');
 
-          await loginAccount();
+          final response = await loginAccount();
+          final decodedResponse = jsonDecode(response);
+          loginLogger.info('decodedResponse: ${decodedResponse['data']}');
+          AccountStore().setAccountState(decodedResponse['data']);
         }
       },
       child: Text('Login',

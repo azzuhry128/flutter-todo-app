@@ -8,13 +8,13 @@ final Logger todoServiceLogger = Logger("TodoServiceLogger");
 final String baseURL = 'http://localhost:3000';
 
 class TodoService {
-  static Future<bool> getTodo(GetTodoModel todo) async {
+  static Future getTodo(GetTodoModel todo) async {
     todoServiceLogger.info('baseURL: $baseURL');
     todoServiceLogger.info('body: ${jsonEncode(todo.toJson())}');
 
     try {
-      final response = await http.get(
-          Uri.parse('$baseURL/api/todos/get/${jsonEncode(todo.toJson())}'));
+      final response = await http
+          .get(Uri.parse('$baseURL/api/todos/get/${todo.account_id}'));
 
       if (response.statusCode == 200) {
         return true;
@@ -29,7 +29,7 @@ class TodoService {
     }
   }
 
-  static Future<bool> createTodo(CreateTodoModel todo, account_id) async {
+  static Future createTodo(CreateTodoModel todo, account_id) async {
     todoServiceLogger.info('destination: $baseURL');
     todoServiceLogger.info('account_id: $account_id');
     todoServiceLogger.info('body: ${jsonEncode(todo.toJson())}');
@@ -53,7 +53,7 @@ class TodoService {
     }
   }
 
-  static Future<bool> updateTodo(UpdateTodoModel todo, todo_id) async {
+  static Future updateTodo(UpdateTodoModel todo, todo_id) async {
     todoServiceLogger.info('destination: $baseURL');
     todoServiceLogger.info('todo_id: $todo_id');
     todoServiceLogger.info('body: ${jsonEncode(todo.toJson())}');
@@ -77,7 +77,7 @@ class TodoService {
     }
   }
 
-  static Future<bool> deletetodo(todo_id) async {
+  static Future deletetodo(todo_id) async {
     todoServiceLogger.info('destination: $baseURL');
     todoServiceLogger.info('todo_id: $todo_id');
 

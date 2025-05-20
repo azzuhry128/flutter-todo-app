@@ -1,5 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app_ui_flutter/store/account_store.dart';
+import 'package:todo_app_ui_flutter/store/todo_store.dart';
 import 'package:todo_app_ui_flutter/todo/todo_model.dart';
+import 'package:todo_app_ui_flutter/todo/todo_service.dart';
 import 'package:todo_app_ui_flutter/todo/widgets/todo_card.dart';
 
 class TodoPage extends StatefulWidget {
@@ -10,25 +17,23 @@ class TodoPage extends StatefulWidget {
 }
 
 class _TodoPageState extends State<TodoPage> {
-  final List<TodoItemModel> _todoItems = [
-    TodoItemModel(
-        title: 'Buy Groceries',
-        description: 'Milk, bread, eggs',
-        status: false),
-    TodoItemModel(
-        title: 'Pay Bills', description: 'Rent, utilities', status: false),
-    TodoItemModel(
-        title: 'Walk the Dog', description: 'Around the park', status: false),
-    TodoItemModel(
-        title: 'Write Report', description: 'For the meeting', status: false),
-    TodoItemModel(title: 'Call Mom', description: 'To wish her', status: false),
-  ];
-  bool _isLoading = false;
+  final Logger todoLogger = Logger('TODO_PAGE');
+  bool _isLoading = true;
+  final List<TodoItemModel> _todoItems = [];
 
-  Future<void> _getTodosFromServer() async {
-    setState(() {
-      _isLoading = true;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _fetchTodos();
+  }
+
+  Future _fetchTodos() async {
+    todoLogger.info('fetching todos');
+    final account = await AccountStore().getAccount();
+    todoLogger.info('account id: ${account['account_id']}');
+
+    final GetTodoModel todo = GetTodoModel(account_id: account['account_id']);
+    final response = await TodoService.getTodo(todo);
   }
 
   void _deleteTodoItem(int index) {
@@ -39,6 +44,11 @@ class _TodoPageState extends State<TodoPage> {
 
   void _toggleDone(int index) {
     setState(() {
+      /// Removes a todo item from the list at the given index.
+      ///
+      /// This should only be called from within the TodoPage widget tree.
+      ///
+      /// [index] The index of the todo item to remove.
       _todoItems[index].status = !_todoItems[index].status;
     });
   }
@@ -53,20 +63,7 @@ class _TodoPageState extends State<TodoPage> {
           children: [
             accountBar(),
             const SizedBox(width: 16),
-            Expanded(
-              child: ListView.builder(
-                // REMOVE SingleChildScrollView
-                itemCount: _todoItems.length,
-                itemBuilder: (context, index) {
-                  final todoItem = _todoItems[index];
-                  return TodoCard(
-                    todoItem: todoItem,
-                    onDelete: () => _deleteTodoItem(index),
-                    onToggleDone: () => _toggleDone(index),
-                  );
-                },
-              ),
-            ),
+            todoList(),
           ],
         ),
       ),
@@ -74,11 +71,42 @@ class _TodoPageState extends State<TodoPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
+
+  Expanded todoList() {
+    return Expanded(
+      child: Consumer<TodoStore>(
+        builder: (context, TodoStore, child) {
+          if (TodoStore.todos.isEmpty) {
+            return const Center(
+              child: Text('no todos yet'),
+            );
+          }
+          return ListView.builder(
+            // REMOVE SingleChildScrollView
+            itemCount: TodoStore.todos.length,
+            itemBuilder: (context, index) {
+              final todoItem = TodoStore.todos[index];
+              return TodoCard(
+                todoItem: todoItem,
+                onDelete: () => _deleteTodoItem(index),
+                onToggleDone: () => _toggleDone(index),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 }
 
 FloatingActionButton addTodoButton(BuildContext context) {
+  final todo = TodoItemModel(
+      title: 'test todo', description: 'test description', status: false);
+
   return FloatingActionButton.extended(
-    onPressed: () {},
+    onPressed: () {
+      Provider.of<TodoStore>(context, listen: false).addTodo(todo);
+    },
     label: const Text('add'),
     icon: const Icon(
       Icons.add,

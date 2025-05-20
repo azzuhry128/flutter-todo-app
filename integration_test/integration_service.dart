@@ -19,7 +19,7 @@ class IntegrationService {
           body: jsonEncode(account.toJson()));
 
       if (response.statusCode == 200) {
-        return true;
+        return response;
       }
 
       serviceLogger.info(
@@ -86,7 +86,7 @@ class IntegrationService {
   static Future createTodo(CreateTodoModel todo, account_id) async {
     serviceLogger.info('baseURL: $baseURL');
     try {
-      final response = await http.patch(
+      final response = await http.post(
           Uri.parse(
               '$baseURL/api/todos/create/$account_id'), //  Corrected URL for updating version
           headers: {'Content-Type': 'application/json'},

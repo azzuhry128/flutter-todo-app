@@ -1,19 +1,29 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
 import 'package:todo_app_ui_flutter/account/account_model.dart';
+import 'package:todo_app_ui_flutter/store/account_store.dart';
+import 'package:todo_app_ui_flutter/store/todo_store.dart';
 import 'package:todo_app_ui_flutter/todo/todo_model.dart';
 import 'package:todo_app_ui_flutter/todo/todo_page.dart';
 
 import 'integration_service.dart';
 
-final Logger todoWidgetTestLogger = Logger("TODO WIDGET TEST");
+final Logger todoIntegrationTestLogger = Logger("TODO INTEGRATION TEST");
 
 final AccountRegistrationModel newTestAccount = AccountRegistrationModel(
-    username: 'testusername123',
+    username: 'username123',
     email_address: 'test123@gmail.com',
     phone_number: 'test123456789',
     password: 'testpassword123');
+
+final AccountLoginModel newTestLogin = AccountLoginModel(
+    email_address: 'test123@gmail.com', password: 'testpassword123');
 
 final CreateTodoModel newTestTodo = CreateTodoModel(
   title: 'Test Todo',
@@ -31,47 +41,44 @@ final CreateTodoModel newTestTodo_3 = CreateTodoModel(
 );
 
 void main() async {
-  final log = Logger('Todo Widget Test');
-  var account_id = '';
-  var todo_1 = [];
-  var todo_2 = [];
-  var todo_3 = [];
+  dotenv.load(fileName: ".env.test");
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
+    todoIntegrationTestLogger.info('setting up todo integration test');
     Logger.root.onRecord.listen((LogRecord record) {
       print(
           '${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
     });
     Logger.root.level = Level.ALL;
+  });
 
+  testWidgets('GET TEST', (WidgetTester tester) async {
     await IntegrationService.deleteAccount();
-    account_id = await IntegrationService.registerAccount(newTestAccount);
-    todo_1 = await IntegrationService.createTodo(newTestTodo, account_id);
-    todo_2 = await IntegrationService.createTodo(newTestTodo_2, account_id);
-    todo_3 = await IntegrationService.createTodo(newTestTodo_3, account_id);
+    await IntegrationService.registerAccount(newTestAccount);
+    final response = await IntegrationService.loginAccount(newTestLogin);
+    final decodedResponse = jsonDecode(response);
+    todoIntegrationTestLogger
+        .info('decodedResponse: ${decodedResponse['data']}');
+    AccountStore.instance.setAccountState(decodedResponse['data']);
+    todoIntegrationTestLogger.info('todo integration test setup finished');
 
-    log.info('test account id: $account_id');
-    log.info('test todo_1: $todo_1');
-    log.info('test todo_2: $todo_2');
-    log.info('test todo_3: $todo_3');
-  });
-
-  await _executeGetTodo(log);
-  await _executePostTodo(log);
-  await _executePatchTodo(log);
-  await _executeDeleteTodo(log);
-
-  log.info('completed all tests');
-}
-
-Future<void> _executeGetTodo(log) async {
-  group('GET TEST GROUP', () {
-    testWidgets('GET TEST', (WidgetTester tester) async {
-      log.info('starting get test');
-      await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        Provider<AccountStore>(
+          create: (context) => AccountStore(),
+        ),
+        ChangeNotifierProvider<TodoStore>(
+          //  <--  This is the key line
+          create: (context) => TodoStore(),
+        ),
+      ],
+      child: MaterialApp(
         home: TodoPage(),
-      ));
-    });
+      ),
+    ));
   });
+
+  todoIntegrationTestLogger.info('completed all tests');
 }
 
 Future<void> _executePostTodo(log) async {

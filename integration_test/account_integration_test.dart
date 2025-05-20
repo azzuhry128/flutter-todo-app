@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_app_ui_flutter/account/account_store.dart';
+import 'package:todo_app_ui_flutter/store/account_store.dart';
 import 'package:todo_app_ui_flutter/account/login_page.dart';
 import 'package:todo_app_ui_flutter/account/register_page.dart';
 
