@@ -5,9 +5,16 @@ import 'package:todo_app_ui_flutter/todo/todo_model.dart';
 final Logger todoStoreLogger = Logger("TodoStore");
 
 class TodoStore extends ChangeNotifier {
-  final List<TodoItemModel> _todos = [];
+  List<TodoItemModel> _todos = [];
 
   List<TodoItemModel> get todos => _todos;
+
+  void setTodos(List<TodoItemModel> newTodos) {
+    todoStoreLogger.info('setting todos');
+    _todos = newTodos;
+    todoStoreLogger.info('current todos: $_todos');
+    notifyListeners(); // Notify widgets that are listening for changes
+  }
 
   void addTodo(TodoItemModel todo) {
     _todos.add(todo);

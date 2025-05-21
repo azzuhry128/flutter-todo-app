@@ -84,18 +84,16 @@ class IntegrationService {
   }
 
   static Future createTodo(CreateTodoModel todo, account_id) async {
-    serviceLogger.info('baseURL: $baseURL');
+    serviceLogger.info('todo body: $todo');
+    serviceLogger.info('account_id: $account_id');
     try {
       final response = await http.post(
-          Uri.parse(
-              '$baseURL/api/todos/create/$account_id'), //  Corrected URL for updating version
+          Uri.parse('$baseURL/api/todos/create/$account_id'),
           headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(todo.toJson()) //  Send the new version in the body
-          );
+          body: jsonEncode(todo.toJson()));
 
       serviceLogger.info(
           "Status Code: ${response.statusCode} Response: ${response.body}");
-      //  Consider 200 OK or 204 No Content for a successful update
       return response;
     } catch (e) {
       serviceLogger.severe("Error: $e");
@@ -132,6 +130,26 @@ class IntegrationService {
       serviceLogger.info(
           "Status Code: ${response.statusCode} Response: ${response.body}");
       return response;
+    } catch (e) {
+      serviceLogger.severe("Error: $e");
+      return false;
+    }
+  }
+
+  static Future deleteAlltodo() async {
+    serviceLogger.warning('deleting all todos');
+
+    try {
+      final response =
+          await http.delete(Uri.parse('$baseURL/api/todos/delete'));
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+
+      serviceLogger.info(
+          "Status Code: ${response.statusCode} Response: ${response.body}");
+      return false;
     } catch (e) {
       serviceLogger.severe("Error: $e");
       return false;

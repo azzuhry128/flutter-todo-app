@@ -18,6 +18,7 @@ class TodoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      key: Key(todoItem.todo_id),
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(

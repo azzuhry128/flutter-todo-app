@@ -43,6 +43,7 @@ final CreateTodoModel newTestTodo_3 = CreateTodoModel(
 void main() async {
   dotenv.load(fileName: ".env.test");
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
   setUpAll(() async {
     todoIntegrationTestLogger.info('setting up todo integration test');
     Logger.root.onRecord.listen((LogRecord record) {
@@ -50,18 +51,28 @@ void main() async {
           '${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
     });
     Logger.root.level = Level.ALL;
-  });
 
-  testWidgets('GET TEST', (WidgetTester tester) async {
+    await IntegrationService.deleteAlltodo();
     await IntegrationService.deleteAccount();
     await IntegrationService.registerAccount(newTestAccount);
     final response = await IntegrationService.loginAccount(newTestLogin);
     final decodedResponse = jsonDecode(response);
     todoIntegrationTestLogger
         .info('decodedResponse: ${decodedResponse['data']}');
+
+    await IntegrationService.createTodo(
+        newTestTodo, decodedResponse['data']['account_id']);
+    await IntegrationService.createTodo(
+        newTestTodo_2, decodedResponse['data']['account_id']);
+    await IntegrationService.createTodo(
+        newTestTodo_3, decodedResponse['data']['account_id']);
+
     AccountStore.instance.setAccountState(decodedResponse['data']);
     todoIntegrationTestLogger.info('todo integration test setup finished');
+  });
 
+  testWidgets('GET TEST', (WidgetTester tester) async {
+    todoIntegrationTestLogger.info('starting get test');
     await tester.pumpWidget(MultiProvider(
       providers: [
         Provider<AccountStore>(
@@ -76,31 +87,51 @@ void main() async {
         home: TodoPage(),
       ),
     ));
+
+    await tester.pumpAndSettle();
+
+    todoIntegrationTestLogger.info('get test finished');
   });
+
+  testWidgets('POST TEST', (WidgetTester tester) async {
+    todoIntegrationTestLogger.info('starting post test');
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        Provider<AccountStore>(
+          create: (context) => AccountStore(),
+        ),
+        ChangeNotifierProvider<TodoStore>(
+          //  <--  This is the key line
+          create: (context) => TodoStore(),
+        ),
+      ],
+      child: MaterialApp(
+        home: TodoPage(),
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    final addbutton = find.widgetWithText(FloatingActionButton, 'add');
+    expect(addbutton, findsOneWidget);
+    await tester.tap(addbutton);
+
+    await tester.pumpAndSettle();
+
+    todoIntegrationTestLogger.info('post test finished');
+  });
+
+  // testWidgets('PATCH TEST', (WidgetTester tester) async {
+  //   todoIntegrationTestLogger.info('starting patch test');
+  //   await tester.pumpWidget(MaterialApp(
+  //     home: TodoPage(),
+  //   ));
+
+  //   await tester.pumpAndSettle();
+  //   todoIntegrationTestLogger.info('patch test is finished');
+  // });
 
   todoIntegrationTestLogger.info('completed all tests');
-}
-
-Future<void> _executePostTodo(log) async {
-  group('POST TEST GROUP', () {
-    testWidgets('POST TEST', (WidgetTester tester) async {
-      log.info('starting post test');
-      await tester.pumpWidget(MaterialApp(
-        home: TodoPage(),
-      ));
-    });
-  });
-}
-
-Future<void> _executePatchTodo(log) async {
-  group('PATCH TEST GROUP', () {
-    testWidgets('PATCH TEST', (WidgetTester tester) async {
-      log.info('starting patch test');
-      await tester.pumpWidget(MaterialApp(
-        home: TodoPage(),
-      ));
-    });
-  });
 }
 
 Future<void> _executeDeleteTodo(log) async {

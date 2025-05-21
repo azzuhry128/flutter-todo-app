@@ -93,11 +93,13 @@ class DeleteTodoModel {
 }
 
 class TodoItemModel {
+  String todo_id;
   String title;
   String description;
   bool status;
 
   TodoItemModel({
+    required this.todo_id,
     required this.title,
     required this.description,
     required this.status,
@@ -105,5 +107,14 @@ class TodoItemModel {
 
   Map<String, dynamic> toJson() {
     return {'title': title, 'description': description, 'status': status};
+  }
+
+  factory TodoItemModel.fromJson(Map<String, dynamic> json) {
+    return TodoItemModel(
+      todo_id: json['todo_id'],
+      title: json['title'],
+      description: json['description'],
+      status: json['status'],
+    );
   }
 }

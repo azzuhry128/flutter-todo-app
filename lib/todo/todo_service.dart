@@ -1,28 +1,27 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:todo_app_ui_flutter/todo/todo_model.dart';
 
 final Logger todoServiceLogger = Logger("TodoServiceLogger");
-final String baseURL = 'http://localhost:3000';
+final String baseURL = dotenv.env['EMULATOR'] ?? '';
 
 class TodoService {
   static Future getTodo(GetTodoModel todo) async {
-    todoServiceLogger.info('baseURL: $baseURL');
-    todoServiceLogger.info('body: ${jsonEncode(todo.toJson())}');
+    todoServiceLogger.info('body: ${jsonEncode(todo.account_id)}');
 
     try {
       final response = await http
           .get(Uri.parse('$baseURL/api/todos/get/${todo.account_id}'));
 
       if (response.statusCode == 200) {
-        return true;
+        return response.body;
       }
 
       todoServiceLogger.info(
           "Status Code: ${response.statusCode} Response: ${response.body}");
-      return false;
     } catch (e) {
       todoServiceLogger.severe("Error: $e");
       return false;
@@ -41,7 +40,7 @@ class TodoService {
           body: jsonEncode(todo.toJson()));
 
       if (response.statusCode == 200) {
-        return true;
+        return response.body;
       }
 
       todoServiceLogger.info(
@@ -65,7 +64,7 @@ class TodoService {
           body: jsonEncode(todo.toJson()));
 
       if (response.statusCode == 200) {
-        return true;
+        return response.body;
       }
 
       todoServiceLogger.info(
@@ -84,6 +83,26 @@ class TodoService {
     try {
       final response =
           await http.delete(Uri.parse('$baseURL/api/todos/delete/$todo_id'));
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+
+      todoServiceLogger.info(
+          "Status Code: ${response.statusCode} Response: ${response.body}");
+      return false;
+    } catch (e) {
+      todoServiceLogger.severe("Error: $e");
+      return false;
+    }
+  }
+
+  static Future deleteAlltodo() async {
+    todoServiceLogger.info('destination: $baseURL');
+
+    try {
+      final response =
+          await http.delete(Uri.parse('$baseURL/api/todos/delete'));
 
       if (response.statusCode == 200) {
         return true;

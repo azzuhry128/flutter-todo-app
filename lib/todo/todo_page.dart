@@ -24,16 +24,47 @@ class _TodoPageState extends State<TodoPage> {
   @override
   void initState() {
     super.initState();
-    _fetchTodos();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchTodos();
+    });
   }
 
   Future _fetchTodos() async {
     todoLogger.info('fetching todos');
     final account = await AccountStore().getAccount();
-    todoLogger.info('account id: ${account['account_id']}');
-
+    // request formatting
     final GetTodoModel todo = GetTodoModel(account_id: account['account_id']);
     final response = await TodoService.getTodo(todo);
+    final decodedResponse = jsonDecode(response);
+    final data = decodedResponse['data'];
+    // converting data to suit TodoItemModel
+    List<TodoItemModel> todoItems =
+        (data as List).map((item) => TodoItemModel.fromJson(item)).toList();
+    // inserting todos into todo store
+    final todoStore = Provider.of<TodoStore>(context, listen: false);
+    todoStore.setTodos(todoItems);
+  }
+
+  Future _addTodo() async {
+    todoLogger.info('adding todo');
+    final account = await AccountStore().getAccount();
+
+    final todoStore = Provider.of<TodoStore>(context, listen: false);
+
+    final CreateTodoModel todo =
+        CreateTodoModel(title: 'test', description: 'test');
+
+    final response = await TodoService.createTodo(todo, account['account_id']);
+    final decodedResponse = jsonDecode(response);
+
+    final todoItem = TodoItemModel(
+        todo_id: decodedResponse['data']['todo_id'],
+        title: decodedResponse['data']['title'],
+        description: decodedResponse['data']['description'],
+        status: decodedResponse['data']['status']);
+
+    todoStore.addTodo(todoItem);
+    todoLogger.info('response: $response');
   }
 
   void _deleteTodoItem(int index) {
@@ -67,22 +98,23 @@ class _TodoPageState extends State<TodoPage> {
           ],
         ),
       ),
-      floatingActionButton: addTodoButton(context),
+      floatingActionButton: addTodoButton(onAdd: _addTodo),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
   Expanded todoList() {
+    final Logger todoListLogger = Logger('TODO_LIST');
     return Expanded(
       child: Consumer<TodoStore>(
         builder: (context, TodoStore, child) {
+          todoListLogger.info('todo store content: ${TodoStore.todos}');
           if (TodoStore.todos.isEmpty) {
             return const Center(
               child: Text('no todos yet'),
             );
           }
           return ListView.builder(
-            // REMOVE SingleChildScrollView
             itemCount: TodoStore.todos.length,
             itemBuilder: (context, index) {
               final todoItem = TodoStore.todos[index];
@@ -99,14 +131,12 @@ class _TodoPageState extends State<TodoPage> {
   }
 }
 
-FloatingActionButton addTodoButton(BuildContext context) {
-  final todo = TodoItemModel(
-      title: 'test todo', description: 'test description', status: false);
+FloatingActionButton addTodoButton({required onAdd}) {
+  final todo =
+      CreateTodoModel(title: 'test todo', description: 'test description');
 
   return FloatingActionButton.extended(
-    onPressed: () {
-      Provider.of<TodoStore>(context, listen: false).addTodo(todo);
-    },
+    onPressed: onAdd,
     label: const Text('add'),
     icon: const Icon(
       Icons.add,
@@ -116,6 +146,8 @@ FloatingActionButton addTodoButton(BuildContext context) {
 }
 
 Container accountBar() {
+  final Logger accountBarLogger = Logger('ACCOUNT_BAR');
+  accountBarLogger.info('rendering account bar');
   return Container(
     height: 96,
     decoration: BoxDecoration(
@@ -128,8 +160,7 @@ Container accountBar() {
           flex: 1,
           child: const CircleAvatar(
             radius: 32, // Adjust as needed
-            backgroundImage: NetworkImage(
-                'https://via.placeholder.com/100'), // Replace with your image URL
+            backgroundColor: Colors.amberAccent,
           ),
         ),
         Flexible(
