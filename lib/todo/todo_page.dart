@@ -52,7 +52,7 @@ class _TodoPageState extends State<TodoPage> {
     final todoStore = Provider.of<TodoStore>(context, listen: false);
 
     final CreateTodoModel todo =
-        CreateTodoModel(title: 'test', description: 'test');
+        CreateTodoModel(title: 'test todo', description: 'test description');
 
     final response = await TodoService.createTodo(todo, account['account_id']);
     final decodedResponse = jsonDecode(response);
@@ -108,7 +108,8 @@ class _TodoPageState extends State<TodoPage> {
     return Expanded(
       child: Consumer<TodoStore>(
         builder: (context, TodoStore, child) {
-          todoListLogger.info('todo store content: ${TodoStore.todos}');
+          todoListLogger.info(
+              'todo store content: ${TodoStore.todos.map((todo) => todo.toString()).toList()}');
           if (TodoStore.todos.isEmpty) {
             return const Center(
               child: Text('no todos yet'),
@@ -118,10 +119,15 @@ class _TodoPageState extends State<TodoPage> {
             itemCount: TodoStore.todos.length,
             itemBuilder: (context, index) {
               final todoItem = TodoStore.todos[index];
-              return TodoCard(
-                todoItem: todoItem,
-                onDelete: () => _deleteTodoItem(index),
-                onToggleDone: () => _toggleDone(index),
+              return InkWell(
+                onTap: () {
+                  todoListLogger.info('todo item tapped: ${todoItem.title}');
+                },
+                child: TodoCard(
+                  todoItem: todoItem,
+                  onDelete: () => _deleteTodoItem(index),
+                  onToggleDone: () => _toggleDone(index),
+                ),
               );
             },
           );
@@ -132,9 +138,6 @@ class _TodoPageState extends State<TodoPage> {
 }
 
 FloatingActionButton addTodoButton({required onAdd}) {
-  final todo =
-      CreateTodoModel(title: 'test todo', description: 'test description');
-
   return FloatingActionButton.extended(
     onPressed: onAdd,
     label: const Text('add'),

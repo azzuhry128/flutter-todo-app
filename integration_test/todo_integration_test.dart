@@ -44,6 +44,9 @@ void main() async {
   dotenv.load(fileName: ".env.test");
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  var decodedAlterationTodo;
+  var alterationTodoID = '';
+
   setUpAll(() async {
     todoIntegrationTestLogger.info('setting up todo integration test');
     Logger.root.onRecord.listen((LogRecord record) {
@@ -60,12 +63,17 @@ void main() async {
     todoIntegrationTestLogger
         .info('decodedResponse: ${decodedResponse['data']}');
 
-    await IntegrationService.createTodo(
+    final alterationTodoResponse = await IntegrationService.createTodo(
         newTestTodo, decodedResponse['data']['account_id']);
     await IntegrationService.createTodo(
         newTestTodo_2, decodedResponse['data']['account_id']);
     await IntegrationService.createTodo(
         newTestTodo_3, decodedResponse['data']['account_id']);
+
+    todoIntegrationTestLogger.info('alteration todo : $alterationTodoResponse');
+
+    decodedAlterationTodo = jsonDecode(alterationTodoResponse.body);
+    alterationTodoID = decodedAlterationTodo['data']['todo_id'];
 
     AccountStore.instance.setAccountState(decodedResponse['data']);
     todoIntegrationTestLogger.info('todo integration test setup finished');
@@ -114,24 +122,58 @@ void main() async {
 
     final addbutton = find.widgetWithText(FloatingActionButton, 'add');
     expect(addbutton, findsOneWidget);
-    await tester.tap(addbutton);
 
+    await tester.tap(addbutton);
     await tester.pumpAndSettle();
 
     todoIntegrationTestLogger.info('post test finished');
   });
 
-  // testWidgets('PATCH TEST', (WidgetTester tester) async {
-  //   todoIntegrationTestLogger.info('starting patch test');
-  //   await tester.pumpWidget(MaterialApp(
-  //     home: TodoPage(),
-  //   ));
+  testWidgets('PATCH TEST', (WidgetTester tester) async {
+    todoIntegrationTestLogger.info('starting patch test');
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        Provider<AccountStore>(
+          create: (context) => AccountStore(),
+        ),
+        ChangeNotifierProvider<TodoStore>(
+          //  <--  This is the key line
+          create: (context) => TodoStore(),
+        ),
+      ],
+      child: MaterialApp(
+        home: TodoPage(),
+      ),
+    ));
 
-  //   await tester.pumpAndSettle();
-  //   todoIntegrationTestLogger.info('patch test is finished');
-  // });
+    await tester.pumpAndSettle();
 
-  todoIntegrationTestLogger.info('completed all tests');
+    final text = 'test todo';
+    final card = find.text(text);
+
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    final firstTextField = find.byType(TextField).at(0);
+    final secondTextField = find.byType(TextField).at(1);
+
+    await tester.enterText(firstTextField, 'new test');
+    await tester.enterText(secondTextField, 'new description');
+    await tester.pumpAndSettle();
+
+    final saveButton = find.widgetWithText(ElevatedButton, 'save');
+    await tester.tap(saveButton);
+    await tester.pumpAndSettle();
+
+    final checkbox = find.byWidgetPredicate((widget) =>
+        widget is Checkbox && widget.key == Key('$alterationTodoID'));
+    await tester.tap(checkbox);
+    await tester.pumpAndSettle();
+
+    todoIntegrationTestLogger.info('patch test is finished');
+  });
 }
 
 Future<void> _executeDeleteTodo(log) async {

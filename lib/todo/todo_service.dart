@@ -57,11 +57,32 @@ class TodoService {
     todoServiceLogger.info('todo_id: $todo_id');
     todoServiceLogger.info('body: ${jsonEncode(todo.toJson())}');
 
+    // Convert todo to a map
+    final Map<String, dynamic> todoMap = todo.toJson();
+
+    // Filter out empty fields (null, empty string, or empty iterable)
+    final filteredMap = <String, dynamic>{};
+    todoMap.forEach((key, value) {
+      if (value != null) {
+        if (value is String && value.trim().isEmpty) {
+          // Skip empty strings
+          return;
+        }
+        if (value is Iterable && value.isEmpty) {
+          // Skip empty lists or iterables
+          return;
+        }
+        filteredMap[key] = value;
+      }
+    });
+
+    todoServiceLogger.info('Filtered body to send: ${jsonEncode(filteredMap)}');
+
     try {
       final response = await http.patch(
           Uri.parse('$baseURL/api/todos/update/$todo_id'),
           headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(todo.toJson()));
+          body: jsonEncode(filteredMap));
 
       if (response.statusCode == 200) {
         return response.body;

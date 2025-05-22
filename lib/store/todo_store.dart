@@ -21,6 +21,27 @@ class TodoStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  void editTodo(String todoID, String newTitle, String newDescription) {
+    for (var todo in _todos) {
+      if (todo.todo_id == todoID) {
+        todo.title = newTitle;
+        todo.description = newDescription;
+        break;
+      }
+    }
+    notifyListeners();
+  }
+
+  void statusTodo(String todoID) {
+    for (var todo in _todos) {
+      if (todo.todo_id == todoID) {
+        todo.status = !todo.status;
+        break;
+      }
+    }
+    notifyListeners();
+  }
+
   void deleteTodo(int index) {
     _todos.removeAt(index);
     notifyListeners();
