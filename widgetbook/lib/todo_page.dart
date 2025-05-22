@@ -43,18 +43,6 @@ class _TodoPageMockupState extends State<TodoPageMockup> {
     ),
   ];
 
-  void _deleteTodoItem(int index) {
-    setState(() {
-      _todoItems.removeAt(index);
-    });
-  }
-
-  void _toggleDone(int index) {
-    setState(() {
-      _todoItems[index].status = !_todoItems[index].status;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,9 +69,8 @@ class _TodoPageMockupState extends State<TodoPageMockup> {
             itemBuilder: (context, index) {
               final todoItem = _todoItems[index];
               return TodoCard(
+                index: index,
                 todoItem: todoItem,
-                onDelete: () => _deleteTodoItem(index),
-                onToggleDone: () => _toggleDone(index),
               );
             }));
   }

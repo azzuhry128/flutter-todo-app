@@ -47,7 +47,10 @@ void main() async {
   var decodedAlterationTodo;
   var alterationTodoID = '';
 
-  setUpAll(() async {
+  var decodedDeletionTodo;
+  var deletionTodoID = '';
+
+  setUp(() async {
     todoIntegrationTestLogger.info('setting up todo integration test');
     Logger.root.onRecord.listen((LogRecord record) {
       print(
@@ -65,7 +68,7 @@ void main() async {
 
     final alterationTodoResponse = await IntegrationService.createTodo(
         newTestTodo, decodedResponse['data']['account_id']);
-    await IntegrationService.createTodo(
+    final deletionTodoResponse = await IntegrationService.createTodo(
         newTestTodo_2, decodedResponse['data']['account_id']);
     await IntegrationService.createTodo(
         newTestTodo_3, decodedResponse['data']['account_id']);
@@ -75,12 +78,15 @@ void main() async {
     decodedAlterationTodo = jsonDecode(alterationTodoResponse.body);
     alterationTodoID = decodedAlterationTodo['data']['todo_id'];
 
+    decodedDeletionTodo = jsonDecode(deletionTodoResponse.body);
+    deletionTodoID = decodedDeletionTodo['data']['todo_id'];
+
     AccountStore.instance.setAccountState(decodedResponse['data']);
     todoIntegrationTestLogger.info('todo integration test setup finished');
   });
 
-  testWidgets('GET TEST', (WidgetTester tester) async {
-    todoIntegrationTestLogger.info('starting get test');
+  testWidgets('CRUD TEST', (WidgetTester tester) async {
+    todoIntegrationTestLogger.info('starting CRUD test');
     await tester.pumpWidget(MultiProvider(
       providers: [
         Provider<AccountStore>(
@@ -96,58 +102,24 @@ void main() async {
       ),
     ));
 
+    // GET TEST
+    todoIntegrationTestLogger.info('GET test started');
     await tester.pumpAndSettle();
 
-    todoIntegrationTestLogger.info('get test finished');
-  });
+    expect(find.byType(Card), findsNWidgets(3));
+    todoIntegrationTestLogger.info('GET test finished');
 
-  testWidgets('POST TEST', (WidgetTester tester) async {
-    todoIntegrationTestLogger.info('starting post test');
-    await tester.pumpWidget(MultiProvider(
-      providers: [
-        Provider<AccountStore>(
-          create: (context) => AccountStore(),
-        ),
-        ChangeNotifierProvider<TodoStore>(
-          //  <--  This is the key line
-          create: (context) => TodoStore(),
-        ),
-      ],
-      child: MaterialApp(
-        home: TodoPage(),
-      ),
-    ));
-
-    await tester.pumpAndSettle();
-
+    // POST TEST
+    todoIntegrationTestLogger.info('POST test started');
     final addbutton = find.widgetWithText(FloatingActionButton, 'add');
     expect(addbutton, findsOneWidget);
 
     await tester.tap(addbutton);
     await tester.pumpAndSettle();
+    todoIntegrationTestLogger.info('POST test finished');
 
-    todoIntegrationTestLogger.info('post test finished');
-  });
-
-  testWidgets('PATCH TEST', (WidgetTester tester) async {
-    todoIntegrationTestLogger.info('starting patch test');
-    await tester.pumpWidget(MultiProvider(
-      providers: [
-        Provider<AccountStore>(
-          create: (context) => AccountStore(),
-        ),
-        ChangeNotifierProvider<TodoStore>(
-          //  <--  This is the key line
-          create: (context) => TodoStore(),
-        ),
-      ],
-      child: MaterialApp(
-        home: TodoPage(),
-      ),
-    ));
-
-    await tester.pumpAndSettle();
-
+    // PATCH TEST
+    todoIntegrationTestLogger.info('PATCH test started');
     final text = 'test todo';
     final card = find.text(text);
 
@@ -167,22 +139,23 @@ void main() async {
     await tester.tap(saveButton);
     await tester.pumpAndSettle();
 
-    final checkbox = find.byWidgetPredicate((widget) =>
-        widget is Checkbox && widget.key == Key('$alterationTodoID'));
+    final checkbox = find.byWidgetPredicate(
+        (widget) => widget is Checkbox && widget.key == Key(alterationTodoID));
+    todoIntegrationTestLogger.info('alterationTodoID: $alterationTodoID');
+
     await tester.tap(checkbox);
     await tester.pumpAndSettle();
+    todoIntegrationTestLogger.info('PATCH test is finished');
 
-    todoIntegrationTestLogger.info('patch test is finished');
-  });
-}
+    // DELETE TEST
+    todoIntegrationTestLogger.info('DELETE test is started');
+    final deleteButton = find.byWidgetPredicate(
+        (widget) => widget is IconButton && widget.key == Key(deletionTodoID));
+    todoIntegrationTestLogger.info('deletionTodoID: $deletionTodoID');
 
-Future<void> _executeDeleteTodo(log) async {
-  group('DELETE TEST GROUP', () {
-    testWidgets('DELETE TEST', (WidgetTester tester) async {
-      log.info('starting delete test');
-      await tester.pumpWidget(MaterialApp(
-        home: TodoPage(),
-      ));
-    });
+    expect(deleteButton, findsOneWidget);
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+    todoIntegrationTestLogger.info('DELETE test is finished');
   });
 }

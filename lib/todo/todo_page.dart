@@ -18,8 +18,6 @@ class TodoPage extends StatefulWidget {
 
 class _TodoPageState extends State<TodoPage> {
   final Logger todoLogger = Logger('TODO_PAGE');
-  bool _isLoading = true;
-  final List<TodoItemModel> _todoItems = [];
 
   @override
   void initState() {
@@ -67,23 +65,6 @@ class _TodoPageState extends State<TodoPage> {
     todoLogger.info('response: $response');
   }
 
-  void _deleteTodoItem(int index) {
-    setState(() {
-      _todoItems.removeAt(index);
-    });
-  }
-
-  void _toggleDone(int index) {
-    setState(() {
-      /// Removes a todo item from the list at the given index.
-      ///
-      /// This should only be called from within the TodoPage widget tree.
-      ///
-      /// [index] The index of the todo item to remove.
-      _todoItems[index].status = !_todoItems[index].status;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,15 +100,9 @@ class _TodoPageState extends State<TodoPage> {
             itemCount: TodoStore.todos.length,
             itemBuilder: (context, index) {
               final todoItem = TodoStore.todos[index];
-              return InkWell(
-                onTap: () {
-                  todoListLogger.info('todo item tapped: ${todoItem.title}');
-                },
-                child: TodoCard(
-                  todoItem: todoItem,
-                  onDelete: () => _deleteTodoItem(index),
-                  onToggleDone: () => _toggleDone(index),
-                ),
+              return TodoCard(
+                index: index,
+                todoItem: todoItem,
               );
             },
           );

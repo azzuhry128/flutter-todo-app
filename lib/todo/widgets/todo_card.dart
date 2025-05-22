@@ -7,18 +7,14 @@ import 'package:todo_app_ui_flutter/todo/todo_service.dart';
 final Logger todoCardLogger = Logger("TodoCard");
 
 class TodoCard extends StatelessWidget {
+  final int index;
   final TodoItemModel todoItem;
-  final VoidCallback onDelete;
-  final VoidCallback onToggleDone;
 
   const TodoCard({
     super.key,
+    required this.index,
     required this.todoItem,
-    required this.onDelete,
-    required this.onToggleDone,
   });
-
-  get index => null;
 
   void _showEditDialog(BuildContext context) {
     final TextEditingController titleController =
@@ -86,7 +82,7 @@ class TodoCard extends StatelessWidget {
                     TodoStore().statusTodo(todoItem.todo_id);
                     TodoService.updateTodo(
                         UpdateTodoModel(
-                          status: !todoItem.status,
+                          status: todoItem.status,
                         ),
                         todoItem.todo_id);
                   },
@@ -112,8 +108,10 @@ class TodoCard extends StatelessWidget {
               Flexible(
                 flex: 1,
                 child: IconButton(
+                  key: Key(todoItem.todo_id),
                   icon: const Icon(Icons.delete),
                   onPressed: () {
+                    todoCardLogger.info('deleted index: $index');
                     TodoStore().deleteTodo(index);
                     TodoService.deletetodo(todoItem.todo_id);
                   },

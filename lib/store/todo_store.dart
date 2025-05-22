@@ -5,6 +5,11 @@ import 'package:todo_app_ui_flutter/todo/todo_model.dart';
 final Logger todoStoreLogger = Logger("TodoStore");
 
 class TodoStore extends ChangeNotifier {
+  // Singleton instance
+  static final TodoStore _instance = TodoStore._internal();
+  factory TodoStore() => _instance;
+  TodoStore._internal(); // Private constructor
+
   List<TodoItemModel> _todos = [];
 
   List<TodoItemModel> get todos => _todos;
@@ -43,7 +48,12 @@ class TodoStore extends ChangeNotifier {
   }
 
   void deleteTodo(int index) {
-    _todos.removeAt(index);
+    todoStoreLogger.info('Current todos: $todos');
+    todoStoreLogger.warning('Attempting to delete index: $index');
+
+    if (index >= 0 && index < _todos.length) {
+      _todos.removeAt(index);
+    }
     notifyListeners();
   }
 }
