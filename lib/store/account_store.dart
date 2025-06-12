@@ -15,6 +15,16 @@ class AccountStore with ChangeNotifier {
   Map<String, dynamic>? _account;
   static const _accountJsonKey = 'account_json';
 
+  // getters
+  String? get username => _account?['username'];
+  Map<String, dynamic>? get accountDataForUsername => _account;
+
+  String? get password => _account?['password'];
+  Map<String, dynamic>? get accountDataForPassword => _account;
+
+  String? get id => _account?['account_id'];
+  Map<String, dynamic>? get accountDataForID => _account;
+
   void setAccountState(account) async {
     accountStoreLogger.info('setting account state');
     _account = account;

@@ -86,7 +86,6 @@ void main() async {
   });
 
   testWidgets('CRUD TEST', (WidgetTester tester) async {
-    todoIntegrationTestLogger.info('starting CRUD test');
     await tester.pumpWidget(MultiProvider(
       providers: [
         Provider<AccountStore>(
@@ -103,23 +102,17 @@ void main() async {
     ));
 
     // GET TEST
-    todoIntegrationTestLogger.info('GET test started');
     await tester.pumpAndSettle();
-
     expect(find.byType(Card), findsNWidgets(3));
-    todoIntegrationTestLogger.info('GET test finished');
 
     // POST TEST
-    todoIntegrationTestLogger.info('POST test started');
     final addbutton = find.widgetWithText(FloatingActionButton, 'add');
     expect(addbutton, findsOneWidget);
 
     await tester.tap(addbutton);
     await tester.pumpAndSettle();
-    todoIntegrationTestLogger.info('POST test finished');
 
     // PATCH TEST
-    todoIntegrationTestLogger.info('PATCH test started');
     final text = 'test todo';
     final card = find.text(text);
 
@@ -141,21 +134,57 @@ void main() async {
 
     final checkbox = find.byWidgetPredicate(
         (widget) => widget is Checkbox && widget.key == Key(alterationTodoID));
-    todoIntegrationTestLogger.info('alterationTodoID: $alterationTodoID');
 
     await tester.tap(checkbox);
     await tester.pumpAndSettle();
-    todoIntegrationTestLogger.info('PATCH test is finished');
+
+    // STATUS TEST
+    final referencedStatusCard = find.byWidgetPredicate(
+        (widget) => widget is Card && widget.key == Key(deletionTodoID));
+
+    expect(referencedStatusCard, findsOneWidget);
+
+    final statusButton = find.descendant(
+        of: referencedStatusCard, matching: find.byType(Checkbox));
+    await tester.tap(statusButton);
+    await tester.pumpAndSettle();
 
     // DELETE TEST
-    todoIntegrationTestLogger.info('DELETE test is started');
-    final deleteButton = find.byWidgetPredicate(
-        (widget) => widget is IconButton && widget.key == Key(deletionTodoID));
-    todoIntegrationTestLogger.info('deletionTodoID: $deletionTodoID');
+    final referenceCard = find.byWidgetPredicate(
+        (widget) => widget is Card && widget.key == Key(deletionTodoID));
 
-    expect(deleteButton, findsOneWidget);
+    expect(referenceCard, findsOneWidget);
+
+    final deleteButton =
+        find.descendant(of: referenceCard, matching: find.byType(IconButton));
     await tester.tap(deleteButton);
     await tester.pumpAndSettle();
-    todoIntegrationTestLogger.info('DELETE test is finished');
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    final deleteButtonInDialog = find.widgetWithText(ElevatedButton, 'delete');
+    expect(deleteButtonInDialog, findsOneWidget);
+
+    await tester.tap(deleteButtonInDialog);
+    await tester.pumpAndSettle();
+
+    // EDIT ACCOUNT TEST
+    // final settingsButton = find.byWidgetPredicate((widget) =>
+    //     widget is IconButton && widget.key == Key('SettingsButton'));
+    // await tester.tap(settingsButton);
+    // await tester.pumpAndSettle();
+
+    // final newUsername = 'updated_123';
+    // final newPassword = 'updated_password_123';
+
+    // final usernameField = find.byKey(const Key('Username'));
+    // final passwordField = find.byKey(const Key('Password'));
+
+    // await tester.enterText(usernameField, newUsername);
+    // await tester.enterText(passwordField, newPassword);
+    // final savebutton = find.widgetWithText(ElevatedButton, 'save');
+
+    // await tester.tap(savebutton);
+    // await tester.pumpAndSettle();
   });
 }

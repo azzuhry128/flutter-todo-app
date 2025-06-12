@@ -26,18 +26,38 @@ class TodoCard extends StatelessWidget {
         builder: (context) {
           return AlertDialog(
             title: const Text('Edit'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
+            content: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 280),
+              child: SizedBox(
+                width: 280,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: titleController,
+                      decoration: const InputDecoration(labelText: 'Title'),
+                      maxLines: 3,
+                      minLines: 1,
+                      keyboardType: TextInputType.multiline,
+                      textInputAction: TextInputAction.newline,
+                      expands: false,
+                      style: TextStyle(overflow: TextOverflow.visible),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: descriptionController,
+                      decoration:
+                          const InputDecoration(labelText: 'Description'),
+                      maxLines: 3,
+                      minLines: 1,
+                      keyboardType: TextInputType.multiline,
+                      textInputAction: TextInputAction.newline,
+                      expands: false,
+                      style: TextStyle(overflow: TextOverflow.visible),
+                    )
+                  ],
                 ),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(labelText: 'Description'),
-                )
-              ],
+              ),
             ),
             actions: [
               ElevatedButton(
@@ -54,6 +74,40 @@ class TodoCard extends StatelessWidget {
                     Navigator.of(context).pop();
                   },
                   child: const Text('save'))
+            ],
+          );
+        });
+  }
+
+  void _deleteDialogue(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Are you sure?'),
+            content: const Text('This action cannot be undone'),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    todoCardLogger.info('cancelling delete');
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('cancel')),
+              ElevatedButton(
+                  onPressed: () {
+                    todoCardLogger.info('deleting todo');
+                    TodoStore().deleteTodo(index);
+                    TodoService.deletetodo(todoItem.todo_id);
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                  ),
+                  child: const Text(
+                    'delete',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w500),
+                  ))
             ],
           );
         });
@@ -79,12 +133,12 @@ class TodoCard extends StatelessWidget {
                   key: Key(todoItem.todo_id),
                   value: todoItem.status,
                   onChanged: (value) {
-                    TodoStore().statusTodo(todoItem.todo_id);
                     TodoService.updateTodo(
                         UpdateTodoModel(
-                          status: todoItem.status,
+                          status: !todoItem.status,
                         ),
                         todoItem.todo_id);
+                    TodoStore().statusTodo(todoItem.todo_id);
                   },
                 ),
               ),
@@ -109,11 +163,13 @@ class TodoCard extends StatelessWidget {
                 flex: 1,
                 child: IconButton(
                   key: Key(todoItem.todo_id),
-                  icon: const Icon(Icons.delete),
+                  icon: const Icon(
+                    Icons.delete,
+                    color: Colors.redAccent,
+                  ),
                   onPressed: () {
+                    _deleteDialogue(context);
                     todoCardLogger.info('deleted index: $index');
-                    TodoStore().deleteTodo(index);
-                    TodoService.deletetodo(todoItem.todo_id);
                   },
                 ),
               ),

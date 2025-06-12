@@ -58,8 +58,7 @@ class IntegrationService {
 
       serviceLogger.info(
           "Status Code: ${response.statusCode} Response: ${response.body}");
-      return response.statusCode ==
-          200; // Or 204 No Content, depending on your API
+      return response.statusCode == 200;
     } catch (e) {
       serviceLogger.severe("Error: $e");
       return false;

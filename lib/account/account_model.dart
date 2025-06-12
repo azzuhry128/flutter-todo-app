@@ -48,3 +48,21 @@ class AccountLoginModel {
     );
   }
 }
+
+class AccountEditModel {
+  final String username;
+  final String password;
+
+  AccountEditModel({required this.username, required this.password});
+
+  Map<String, dynamic> toJson() {
+    return {'username': username, 'password': password};
+  }
+
+  factory AccountEditModel.fromJson(Map<String, dynamic> json) {
+    return AccountEditModel(
+      username: json['email_address'],
+      password: json['password'],
+    );
+  }
+}

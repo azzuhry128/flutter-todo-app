@@ -46,4 +46,22 @@ class AccountService {
       return false;
     }
   }
+
+  static Future editAccount(AccountEditModel account, accountID) async {
+  serviceLogger.info('baseURL: $baseURL');
+  try {
+    final response = await http.put(
+      Uri.parse('$baseURL/api/accounts/edit/$accountID'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(account.toJson()),
+    );
+
+    serviceLogger.info(
+        "Status Code: ${response.statusCode} Response: ${response.body}");
+    return response.body;
+  } catch (e) {
+    serviceLogger.severe("Error: $e");
+    return false;
+  }
+}
 }

@@ -73,7 +73,7 @@ class _TodoPageState extends State<TodoPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            accountBar(),
+            accountBar(context),
             const SizedBox(width: 16),
             todoList(),
           ],
@@ -123,7 +123,7 @@ FloatingActionButton addTodoButton({required onAdd}) {
   );
 }
 
-Container accountBar() {
+Container accountBar(context) {
   final Logger accountBarLogger = Logger('ACCOUNT_BAR');
   accountBarLogger.info('rendering account bar');
   return Container(
@@ -173,8 +173,7 @@ Container accountBar() {
           flex: 1,
           child: IconButton(
             onPressed: () {
-              // Handle settings button press
-              print('Settings button pressed');
+              Navigator.of(context).pushNamed('/register');
             },
             icon: const Icon(
               Icons.settings,

@@ -18,80 +18,66 @@ void main() async {
   final log = Logger('account integration test');
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
+  setUpAll(() async {
     Logger.root.onRecord.listen((LogRecord record) {
       print(
           '${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
     });
     Logger.root.level = Level.ALL;
+
+    log.info('setting up account integration test');
+    await IntegrationService.deleteAlltodo();
+    await IntegrationService.deleteAccount();
   });
+  testWidgets('account registration test', (WidgetTester tester) async {
+    log.info('starting registration test');
+    await tester.pumpWidget(MaterialApp(
+      home: RegisterPage(),
+    ));
 
-  await _executeRegistrationTest(log);
-  await _executeLoginTest(log);
+    final usernameText = 'username123';
+    final emailText = 'test123@gmail.com';
+    final phoneText = 'test123456789';
+    final passwordText = 'password123';
 
+    log.info('filling out the form');
+    await tester.enterText(find.byKey(const Key('Username')), usernameText);
+    await tester.enterText(find.byKey(const Key('Email')), emailText);
+    await tester.enterText(find.byKey(const Key('Phone')), phoneText);
+    await tester.enterText(find.byKey(const Key('Password')), passwordText);
+
+    log.info(
+        'information inserted into the form $usernameText, $emailText, $phoneText, $passwordText');
+
+    log.info('pressing the button');
+    final registerButton = find.widgetWithText(ElevatedButton, 'Register');
+
+    await tester.tap(registerButton);
+    await tester.pumpAndSettle();
+  });
+  testWidgets('account login test', (WidgetTester tester) async {
+    log.info('starting login test');
+    await tester.pumpWidget(ChangeNotifierProvider<AccountStore>(
+      create: (context) => AccountStore(),
+      child: MaterialApp(
+        home: LoginPage(),
+      ),
+    ));
+
+    final emailText = 'test123@gmail.com';
+    final passwordText = 'password123';
+
+    log.info('filling out the form');
+    await tester.enterText(find.byKey(const Key('Email')), emailText);
+    await tester.enterText(find.byKey(const Key('Password')), passwordText);
+
+    log.info('information inserted into the form $emailText, $passwordText');
+
+    log.info('pressing the button');
+    final loginButton = find.widgetWithText(ElevatedButton, 'Login');
+
+    await tester.tap(loginButton);
+    await tester.pumpAndSettle();
+  });
   log.info('completed all tests');
-}
-
-Future<void> _executeRegistrationTest(log) async {
-  group('Account Registration Integration', () {
-    setUpAll(() async {
-      log.info('setting up registration test');
-      await IntegrationService.deleteAccount();
-    });
-    testWidgets('Account Registration test', (WidgetTester tester) async {
-      log.info('starting registration test');
-      await tester.pumpWidget(MaterialApp(
-        home: RegisterPage(),
-      ));
-
-      final usernameText = 'username123';
-      final emailText = 'test123@gmail.com';
-      final phoneText = 'test123456789';
-      final passwordText = 'password123';
-
-      log.info('filling out the form');
-      await tester.enterText(find.byKey(const Key('Username')), usernameText);
-      await tester.enterText(find.byKey(const Key('Email')), emailText);
-      await tester.enterText(find.byKey(const Key('Phone')), phoneText);
-      await tester.enterText(find.byKey(const Key('Password')), passwordText);
-
-      log.info(
-          'information inserted into the form $usernameText, $emailText, $phoneText, $passwordText');
-
-      log.info('pressing the button');
-      final registerButton = find.widgetWithText(ElevatedButton, 'Register');
-
-      await tester.tap(registerButton);
-      await tester.pumpAndSettle();
-    });
-  });
-}
-
-Future<void> _executeLoginTest(log) async {
-  group('Account Login Integration', () {
-    testWidgets('Account Login test', (WidgetTester tester) async {
-      log.info('starting Login test');
-      await tester.pumpWidget(ChangeNotifierProvider<AccountStore>(
-        create: (context) => AccountStore(),
-        child: MaterialApp(
-          home: LoginPage(),
-        ),
-      ));
-
-      final emailText = 'test123@gmail.com';
-      final passwordText = 'password123';
-
-      log.info('filling out the form');
-      await tester.enterText(find.byKey(const Key('Email')), emailText);
-      await tester.enterText(find.byKey(const Key('Password')), passwordText);
-
-      log.info('information inserted into the form $emailText, $passwordText');
-
-      log.info('pressing the button');
-      final loginButton = find.widgetWithText(ElevatedButton, 'Login');
-
-      await tester.tap(loginButton);
-      await tester.pumpAndSettle();
-    });
-  });
 }
